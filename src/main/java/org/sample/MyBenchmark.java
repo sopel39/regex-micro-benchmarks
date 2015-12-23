@@ -31,8 +31,8 @@
 
 package org.sample;
 
-import com.logentries.re2.RE2;
-import com.logentries.re2.RegExprException;
+/*import com.logentries.re2.RE2;
+import com.logentries.re2.RegExprException;*/
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Regex;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.airlift.slice.Slices;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readAllLines;
 import static org.joni.Option.DEFAULT;
 import static org.joni.Option.NONE;
@@ -51,6 +54,7 @@ public class MyBenchmark
 {
 
     private static final String[] LINES;
+    private static final byte[][] LINES_UTF8;
 
     static {
         try {
@@ -59,6 +63,11 @@ public class MyBenchmark
         }
         catch (IOException e) {
             throw new RuntimeException(e);
+        }
+
+        LINES_UTF8 = new byte[LINES.length][];
+        for (int i = 0; i < LINES.length; i++) {
+            LINES_UTF8[i] = LINES[i].getBytes(UTF_8);
         }
     }
 
@@ -113,19 +122,19 @@ public class MyBenchmark
             "H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?H?Holmes"
     };
 
-    //@Benchmark
+    @Benchmark
     public void joni_pattern1()
     {
         joni(SEARCH_PATTERNS1);
     }
 
-    //@Benchmark
+    @Benchmark
     public void joni_pattern2()
     {
         joni(SEARCH_PATTERNS2);
     }
 
-    //@Benchmark
+    @Benchmark
     public void joni_pattern3()
     {
         joni(SEARCH_PATTERNS3);
@@ -145,7 +154,7 @@ public class MyBenchmark
         }
     }
 
-    @Benchmark
+    /*@Benchmark
     public void re2j_pattern1()
     {
         re2j(SEARCH_PATTERNS1);
@@ -173,8 +182,39 @@ public class MyBenchmark
                 m.find();
             }
         }
+    }*/
+
+    @Benchmark
+    public void re2j_slice_pattern1()
+    {
+        re2j_slice(SEARCH_PATTERNS1);
     }
 
+    @Benchmark
+    public void re2j_slice_pattern2()
+    {
+        re2j_slice(SEARCH_PATTERNS2);
+    }
+
+    @Benchmark
+    public void re2j_slice_pattern3()
+    {
+        re2j_slice(SEARCH_PATTERNS3);
+    }
+
+    private void re2j_slice(String[] patterns)
+    {
+        for (String pattern : patterns) {
+            com.google.re2j.Pattern p = com.google.re2j.Pattern.compile(pattern);
+
+            for (byte[] lineBytes : LINES_UTF8) {
+                com.google.re2j.Matcher m = p.matcher(Slices.wrappedBuffer(lineBytes));
+                m.find();
+            }
+        }
+    }
+
+    /*
     //@Benchmark
     public void re2java_pattern1()
     {
@@ -209,21 +249,21 @@ public class MyBenchmark
         catch (RegExprException exception) {
             exception.printStackTrace();
         }
-    }
+    }*/
 
-    //@Benchmark
+    @Benchmark
     public void defaultRegex_pattern1()
     {
         defaultRegex(SEARCH_PATTERNS1);
     }
 
-    //@Benchmark
+    @Benchmark
     public void defaultRegex_pattern2()
     {
         defaultRegex(SEARCH_PATTERNS2);
     }
 
-    //@Benchmark
+    @Benchmark
     public void defaultRegex_pattern3()
     {
         defaultRegex(SEARCH_PATTERNS3);
@@ -244,8 +284,8 @@ public class MyBenchmark
     {
         MyBenchmark benchmark = new MyBenchmark();
         double startTime = System.currentTimeMillis();
-        for (int i = 0; i < 60; ++i) {
-            benchmark.re2j_pattern1();
+        for (int i = 0; i < 20; ++i) {
+            benchmark.re2j_slice_pattern1();
         }
         double endTime = System.currentTimeMillis();
         System.err.println("total time: " + (endTime - startTime) / 1000d);

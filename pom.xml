@@ -33,6 +33,12 @@ THE POSSIBILITY OF SUCH DAMAGE.
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+
     <groupId>org.sample</groupId>
     <artifactId>test</artifactId>
     <version>1.0</version>
@@ -66,20 +72,25 @@ THE POSSIBILITY OF SUCH DAMAGE.
             <artifactId>jcodings</artifactId>
             <version>1.0.13</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.logentries.re2</groupId>
             <artifactId>libre2-java</artifactId>
             <version>1.2.5</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.jruby.joni</groupId>
             <artifactId>joni</artifactId>
             <version>2.1.8</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.google.re2j</groupId>
             <artifactId>re2j</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.teradata</groupId>
+            <artifactId>re2j</artifactId>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
